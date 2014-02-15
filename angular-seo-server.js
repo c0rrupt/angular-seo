@@ -33,9 +33,6 @@ var renderHtml = function(url, cb) {
 //    };
     page.onInitialized = function() {
        page.evaluate(function() {
-            document.addEventListener('__htmlReady__', function() {
-                window.callPhantom();
-            }, false);
             setTimeout(function() {
                 window.callPhantom();
             }, 10000);
@@ -48,7 +45,7 @@ server.listen(port, function (request, response) {
     var route = parse_qs(request.url)._escaped_fragment_;
     var url = urlPrefix
       + request.url.slice(1, request.url.indexOf('?'))
-      + '#!' + route;
+      + '#!' + decodeURIComponent(route);
     renderHtml(url, function(html) {
         response.statusCode = 200;
         response.write(html);

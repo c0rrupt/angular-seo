@@ -1,0 +1,24 @@
+{
+  "name": "angular-seo",
+  "main": "angular-seo.js",
+  "version": "0.0.2",
+  "homepage": "https://github.com/BeOleg/angular-seo",
+  "authors": [
+    "Oleg Belousov <olegb@tomigo.com>"
+  ],
+  "description": "SEO for angular apps made easy",
+  "keywords": [
+    "SPA",
+    "SEO",
+    "Crawlers",
+    "Open-graph",
+    "Angular"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+  ]
+}

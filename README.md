@@ -39,7 +39,7 @@ If you are using [RequireJS](http://requirejs.org/), the script will detect it a
 ```
 requirejs.config({
     paths: {
-        angular: 'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.3/angular.min',
+        angular: 'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.8/angular.min',
     },
     shim: {
         angular: {
@@ -83,7 +83,7 @@ var app = angular.module('myApp', ['angular-seo'])
                             if($http.pendingRequests.length < 1){
                                 $rootScope.htmlReady();
                             }
-                        }, 700);//an 0.7 seconds safety interval, if there are no requests for 0.7 seconds, it means that the app is through rendering
+                        }, 1000);
                     }
                     return response;
                 }
@@ -144,16 +144,61 @@ $ curl 'http://localhost:8888/?_escaped_fragment_=/route'
 You should then have a complete, rendered HTML output.
 
 
-Running in behind Nginx (or other)
+Running in behind Nginx or Apache
 ==================================
 
 If course you don't want regular users to see this, only crawlers.
 To detect that, just look for an `_escaped_fragment_` in the query args.
 
-For instance with Nginx:
+Nginx(hasbang url):
 ```
-if ($args ~ _escaped_fragment_) {
-    # Proxy to PhantomJS instance here
+server{
+    listen 80;
+    server_name example.com;
+
+    if ($args ~ _escaped_fragment_) {
+        proxy_pass http://127.0.0.1:8888;
+        break;
+    }
 }
+
+```
+Nginx(pushState url):
+The second condition won't work for non-pushState URLs since those bots that don't support the _escaped_fragment_ format will just
+remove anythin that's after the hasbang from the the requested url.
+```
+server{
+    listen 80;
+    server_name example.com;
+    if ($args ~ _escaped_fragment_) {
+        proxy_pass http://127.0.0.1:8888;
+        break;
+    }
+    if ($http_user_agent ~* (LinkedInBot|UnwidFetchor|voyager)){
+        rewrite ^(.*)$ /?_escaped_fragment=$1
+        proxy_pass http://127.0.0.1:8888;
+        break;
+    }
+}
+```
+
+Apache(untested):
+```
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Don't rewrite files or directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+RewriteCond %{HTTP_USER_AGENT}   ^(LinkedInBot|UnwidFetchor|voyager).+
+RewriteRule ^/[a-zA-Z0-9]+[/]?$ /?_escaped_fragment_=$1 [QSA,L]
+ProxyPass / http://127.0.0.1:8888
+ProxyPassReverse / http://127.0.0.1:8888
+#Simulate _escaped_fragment_ query string for bots that don't do it on their
+
+  # Rewrite everything else to index.html to allow pushState deep linking
+  RewriteRule ^/[a-zA-Z0-9]+[/]?$ /index.html [QSA,L]
+</IfModule>
 ```
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/3a55c16a191c4c8222beddcf429c2608 "githalytics.com")](http://githalytics.com/steeve/angular-seo)

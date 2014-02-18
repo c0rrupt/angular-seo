@@ -202,7 +202,7 @@ ProxyPassReverse / http://127.0.0.1:8888
 </IfModule>
 ```
 
-Upstart script for auto-start & reswapn:
+Upstart script for auto-start & respawn:
 $sudo vi /etc/init/phantomjs.conf
 ```
 description "phantomjs"

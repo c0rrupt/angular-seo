@@ -201,4 +201,34 @@ ProxyPassReverse / http://127.0.0.1:8888
   RewriteRule ^/[a-zA-Z0-9]+[/]?$ /index.html [QSA,L]
 </IfModule>
 ```
+
+Upstart script for auto-start & reswapn:
+$sudo vi /etc/init/phantomjs.conf
+```
+description "phantomjs"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+console log
+setuid tomigo
+setgid tomigo
+respawn
+
+script
+  exec phantomjs --disk-cache=no --ignore-ssl-errors=yes /opt/path/to/angular-seo-server.js 8888 https://example.com/$
+end script
+
+```
+
+And then just:
+$phantomjs start
+and you're on!
+
+For development enviorments\staging(remote, local), just run the command with nohup or setsid:
+$setsid phantomjs --disk-cache=no /opt/path/to/angular-seo-server.js 8888 http://127.0.0.1
+$nohup phantomjs --disk-cache=no /opt/path/to/angular-seo-server.js 8888 http://127.0.0.1
+
+Differenct is that nohup outputs to ~/nohup.out while running in the background, and setsid run in the current terminal session, and
+when it's closed outputs to /dev/null
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/3a55c16a191c4c8222beddcf429c2608 "githalytics.com")](http://githalytics.com/steeve/angular-seo)

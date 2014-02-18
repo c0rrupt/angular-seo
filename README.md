@@ -175,7 +175,7 @@ server{
         break;
     }
     if ($http_user_agent ~* (LinkedInBot|UnwidFetchor|voyager)){
-        rewrite ^(.*)$ /?_escaped_fragment=$1
+        rewrite ^(.*)$ /?_escaped_fragment=$1 last;
         proxy_pass http://127.0.0.1:8888;
         break;
     }
